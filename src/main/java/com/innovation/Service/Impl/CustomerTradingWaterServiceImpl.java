@@ -44,7 +44,6 @@ public class CustomerTradingWaterServiceImpl implements CustomerTradingWaterServ
      * @description 查询客户交易流水
      * @param startTime    查询开始时间
      * @param endTime      查询结束时间
-     * @param idCardNumber 查询银行卡号
      * @return 成功：customerTradingWaters交易流水List数组 失败：null
      */
     @Override
