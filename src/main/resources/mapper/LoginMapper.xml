@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.innovation.Dao.LoginMapper">
+    <resultMap type="com.innovation.po.CustomerOnlineBankAccount" id="CustomerOnlineBankAccountmap1">
+        <id column="id" property="id" />
+        <result column="id_number" property="idNumber" />
+        <result column="login_password" property="loginPassword" />
+        <result column="phone_number" property="phoneNumber" />
+        <result column="login_status" property="loginStatus" />
+        <result column="last_login_time" property="lastLoginTime" />
+        <result column="active" property="active" />
+    </resultMap>
+    <!--查询客户是否在网上银行账户中-->
+    <select id="findCustomerByIdNumber" resultType="int">
+        select count(*) from customer_online_bank_account where id_number = #{idNumber}
+    </select>
+
+    <!--    根据用户的身份证号查找用户的密码-->
+    <select id="findPwdByIdnumber" resultType="java.lang.String" parameterType="java.lang.String">
+        select login_password from customer_online_bank_account where id_number = #{idNumber}
+    </select>
+
+    <!--更改客户的密码为新密码-->
+    <update id="updatePwdByIdNumber">
+        update customer_online_bank_account
+        set login_password = #{loginPassword}
+        where id_number = #{idNumber}
+    </update>
+    <!--    更改用户的登录状态-->
+    <update id="updateStatus">
+        update customer_online_bank_account
+        set login_status = #{loginStatus}
+        where id_number = #{idNumber}
+    </update>
+    <!--    查找上次登录时间-->
+    <select id="findLastLoginTime" resultType="java.lang.String" parameterType="java.lang.String">
+        select last_login_time from customer_online_bank_account where  id_number = #{idNumber}
+    </select>
+    <!--    更新用户的登录时间-->
+    <update id="updateLoginTime">
+        update customer_online_bank_account
+        set last_login_time = #{lastLoginTime}
+        where id_number = #{idNumber}
+    </update>
+    <!--    判断激活状态-->
+    <select id="findActiveByIdNumber" resultType="java.lang.String" parameterType="java.lang.String">
+        select active from customer_online_bank_account where  id_number = #{idNumber}
+    </select>
+    <!--更新激活状态-->
+    <update id="updateActiveByIdNumber">
+        update customer_online_bank_account
+        set active = #{active}
+        where id_number = #{idNumber}
+    </update>
+
+    <!--在customer_online_bank_account表中查看用户的手机号是否存在-->
+    <select id="findIdNumberByPhoneNumber" resultType="java.lang.String" parameterType="java.lang.String">
+        select id_number from customer_online_bank_account where  phone_number = #{phoneNumber}
+    </select>
+
+    <resultMap type="com.innovation.po.CustomerPersonalInformation" id="CustomerPersonalInformationmap1">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="type_of_certificate" property="typeOfCertificate" />
+        <result column="id_number" property="idNumber" />
+        <result column="certificate_start_period" property="certificateStartPeriod" />
+        <result column="certificate_end_period" property="certificateEndPeriod" />
+        <result column="country_region" property="countryRegion" />
+        <result column="address" property="address" />
+        <result column="mail" property="mail" />
+        <result column="occupation" property="occupation" />
+        <result column="family_line" property="familyLine" />
+        <result column="workplace_line" property="workplaceLine" />
+        <result column="workplace" property="workplace" />
+    </resultMap>
+
+    <!--补充用户信息-->
+    <update id="updateInformation">
+        update customer_personal_information
+        set
+            mail = #{mail},
+            profession = #{occupation},
+            family_fixed_phone = #{familyLine},
+            unit_fixation_phone = #{workplaceLine},
+            work_unit_address = #{workplace}
+        where
+            id_number = #{idNumber}
+    </update>
+
+    <update id="updateLoginPwd">
+        update customer_online_bank_account set login_password = #{newPassword} where id_number = #{idNumber}
+    </update>
+
+    <!--    根据用户的身份证号，将用户信息查询出来-->
+    <select id="getInfo" parameterType="java.lang.String" resultType="com.innovation.vo.InformationCorrect">
+        select name,type_of_certificate,address,mail,profession,family_fixed_phone,unit_fixation_phone,work_unit_address,A.id_number,
+               B.phone_number,C.external_account
+        from customer_personal_information A,customer_online_bank_account B,customer_current_savings_account C
+        where   A.id_number = #{idNumber} and A.id_number=B.id_number and  A.id_number=C.id_number
+    </select>
+
+
+</mapper>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.innovation.Dao.InterestProcessingMapper">
+    <select id="getAllBalance" resultType="com.innovation.po.CurrentSavingsAccountBalance">
+        SELECT
+            current_savings_account_balance.external_account,
+            current_savings_account_balance.bank_balance
+        FROM
+            current_savings_account_balance ,
+            current_savings_account_information
+        where
+          current_savings_account_information.external_account = current_savings_account_balance.external_account
+          and current_savings_account_information.account_current_status = '正常'
+    </select>
+
+    <insert id="CumulativeInterestRateAccumulation" parameterType="java.util.List">
+        insert into attention_interest_rate(external_account,bank_balance,now_date)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+             #{item.externalAccount},#{item.bankBalance},#{date}
+            )
+        </foreach>
+    </insert>
+
+    <select id="interestDays" resultType="String">
+        select benchmark from interest_rate_definition where interest_rate_code = #{code}
+    </select>
+</mapper>

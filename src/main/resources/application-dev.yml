@@ -1,0 +1,23 @@
+server:
+  port: 8088
+spring:
+  datasource:
+    username: "root"
+    password: "020491"
+    url: jdbc:mysql://localhost:3306/innovation?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=GMT%2B8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # druid
+    type: com.alibaba.druid.pool.DruidDataSource
+mybatis:
+  mapper-locations: classpath*:mapper/*.xml
+  type-aliases-package: com.innovation.po
+  configuration:
+    map-underscore-to-camel-case: true
+# 配置pagehelper参数
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+
+

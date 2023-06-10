@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.innovation.Dao.CustomerTransactionMapper">
+    <select id="getAccountShowingInformation" resultType="com.innovation.vo.AccountShowingInformation">
+        SELECT
+            current_savings_account_balance.available_balance,
+            current_savings_account_information.currency,
+            current_savings_account_information.account_type,
+            current_savings_account_information.account_current_status,
+            current_savings_account_balance.bank_balance,
+            current_savings_account_balance.frozen_balance,
+            account_card_number.bank_card_number
+        FROM
+            customer_current_savings_account
+                left join
+            current_savings_account_information on current_savings_account_information.external_account = customer_current_savings_account.external_account
+                left join
+            account_card_number on account_card_number.external_account = customer_current_savings_account.external_account
+                left join
+            current_savings_account_balance on current_savings_account_balance.external_account = customer_current_savings_account.external_account
+        WHERE
+            customer_current_savings_account.id_number = #{idNumber}
+    </select>
+
+    <select id="isPasswordCorrect" resultType="int">
+        SELECT
+        count(*)
+        from
+        current_savings_account_information
+        where
+        external_account =#{bankAccount}
+        and
+        transaction_password = #{transactionPassword}
+    </select>
+
+    <select id="isExistReceiveAmountAccount" resultType="int">
+        SELECT
+            count(*)
+        from
+            customer_current_savings_account
+        where
+            external_account = #{ReceiveAmountAccount}
+    </select>
+
+    <select id="isEnableReceiveAmount" resultType="String">
+        SELECT
+            account_current_status
+        FROM
+            current_savings_account_information
+        where
+            external_account = #{ReceiveAmountAccount}
+    </select>
+
+    <select id="getReceiveName" resultType="String">
+        SELECT
+            customer_personal_information.`name`
+        FROM
+            customer_personal_information
+                INNER JOIN customer_current_savings_account ON customer_personal_information.id_number = customer_current_savings_account.id_number
+        WHERE
+                customer_personal_information.id_number = customer_current_savings_account.id_number AND
+            customer_current_savings_account.external_account = #{ReceiveAccount}
+    </select>
+</mapper>

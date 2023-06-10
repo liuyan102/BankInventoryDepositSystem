@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.innovation.Dao.AttentionInterestRateMapper">
+    <insert id="insertADailyBalance" parameterType="com.innovation.po.AttentionInterestRate">
+        insert into attention_interest_rate(external_account,bank_balance,now_date)
+        values (#{externalAccount},#{bankBalance},#{countDate})
+    </insert>
+    <select id="queryMonthBalance" resultType="com.innovation.po.AttentionInterestRate">
+        select bank_balance,now_date from attention_interest_rate
+        <where>
+            <if test="externalAccount != null">
+                and external_account = #{externalAccount}
+            </if>
+            <if test="nowDate != null">
+                and now_date between DATE_SUB(#{nowDate},INTERVAL 30 DAY) and #{nowDate}
+            </if>
+        </where>
+        order by now_date asc
+    </select>
+</mapper>

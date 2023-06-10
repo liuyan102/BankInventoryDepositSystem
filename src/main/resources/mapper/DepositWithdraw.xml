@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.innovation.Dao.DepositWithdrawMapper">
+
+    <select id="searchaccount" parameterType="String" resultType="String">
+        select external_account
+        from account_card_number
+        where bank_card_number=#{cardnumber}
+    </select>
+
+    <insert id="insertgeneralaccount" parameterType="com.innovation.po.GeneralAccountWater">
+        insert into general_account_water(branch,gl_code,cr_dr_ind,amount,now_date,
+                                          customer_trading_stream_number,
+                                          company,currency)
+        values (#{branch},#{glCode},#{crDrInd},#{amount},#{nowDate},
+                #{customerTradingStreamNumber},#{company},#{currency})
+    </insert>
+
+    <select id="searchname" parameterType="String" resultType="String">
+        select name from customer_personal_information where id_number=#{id_number}
+    </select>
+
+    <select id="searchidnumber" parameterType="String" resultType="String">
+        select id_number from customer_current_savings_account where external_account= #{external_account}
+    </select>
+
+    <select id="searchcurrent" parameterType="String" resultType="com.innovation.po.CurrentSavingsAccountInformation">
+        select transaction_password,account_current_status,currency,account_type from current_savings_account_information
+        where external_account=#{external_account}
+    </select>
+
+    <select id="searchbankbalance" parameterType="String" resultType="com.innovation.po.CurrentSavingsAccountBalance">
+        select bank_balance,available_balance,frozen_balance from current_savings_account_balance where external_account=#{external_account}
+    </select>
+
+    <update id="updatebankbalance">
+        update current_savings_account_balance set bank_balance =bank_balance+#{changebalance},available_balance=available_balance+#{changebalance}
+        where external_account = #{external_account}
+    </update>
+
+    <insert id="inserttradingwater" parameterType="com.innovation.po.CustomerTradingWater">
+        insert into customer_trading_water
+            (transaction_time,business_type,transaction_amount,payment_name,payment_account,
+             receive_name,receive_account,current_balance,external_account,transaction_id,really_time)
+        values(#{transactionTime},#{businessType},#{transactionAmount},#{paymentName},#{paymentAccount},
+               #{receiveName},#{receiveAccount},
+               (
+                   SELECT
+                       bank_balance
+                   FROM
+                       current_savings_account_balance
+                   where external_account = #{externalAccount}
+               )
+               ,#{externalAccount},#{transactionId},#{reallyTime})
+    </insert>
+
+    <select id="getName" resultType="String">
+        SELECT
+            customer_personal_information.`name`
+        FROM
+            customer_current_savings_account,
+            customer_personal_information
+        where
+                customer_personal_information.id_number = customer_current_savings_account.id_number
+          and external_account = #{bankNumber}
+    </select>
+
+    <update id="insertbankcashbalance" parameterType="com.innovation.po.BankCashBalance">
+        update bank_cash_balance set balance=balance+#{balance}
+        where branch=#{branch}
+          and teller_id=#{tellerId}
+    </update>
+    <select id="getTotalBalance" resultType="BigDecimal">
+        select balance from bank_cash_balance where branch=#{branch} and teller_id=#{tellerId}
+    </select>
+</mapper>

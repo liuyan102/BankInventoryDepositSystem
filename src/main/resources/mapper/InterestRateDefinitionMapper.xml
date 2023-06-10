@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.innovation.Dao.InterestRateDefinitionMapper">
+    <select id="getInterestRateList" resultType="com.innovation.po.InterestRateDefinition">
+        SELECT
+            interest_rate_code,
+            currency,
+            effective_date,
+            failure_date,
+            interest_rate_type,
+            benchmark,
+            benchmark_interest_rate,
+            updated,
+            update_operator,
+            remark
+        FROM
+            interest_rate_definition
+        where
+        <if test="SearchLable!='全部'">
+            interest_rate_type = #{SearchLable} and
+        </if>
+        interest_rate_code like '%${interestRateCode}%'
+    </select>
+
+    <update id="updateInterestRateDefinition" parameterType="com.innovation.po.InterestRateDefinition">
+        <![CDATA[update interest_rate_definition set currency = #{currency},effective_date=#{effectiveDate},failure_date=#{failureDate},interest_rate_type=#{interestRateType},
+                                            benchmark = #{benchmark},benchmark_interest_rate=#{benchmarkInterestRate},updated=#{updated},update_operator=#{updateOperator},remark=#{remark}
+        where interest_rate_code = #{interestRateCode}]]>
+    </update>
+
+    <select id="getSettlementDay" resultType="String">
+        select settlement_day from interest_rate_definition where interest_rate_code = #{code}
+    </select>
+
+    <update id="setSettlementDay" parameterType="String">
+        update interest_rate_definition set settlement_day = #{settlementDay} where interest_rate_code = '1000'
+    </update>
+</mapper>

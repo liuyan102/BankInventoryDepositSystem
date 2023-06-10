@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.innovation.Dao.CommonMapper">
+
+    <select id="getAccountName" resultType="String">
+        SELECT
+            customer_personal_information.name
+        FROM
+            customer_current_savings_account
+                INNER JOIN customer_personal_information ON customer_personal_information.id_number = customer_current_savings_account.id_number
+        where
+            customer_current_savings_account.external_account = #{externalAccount}
+    </select>
+
+    <select id="queryAccountBalanceInformation" resultType="com.innovation.po.CurrentSavingsAccountBalance">
+        SELECT
+            current_savings_account_balance.bank_balance,
+            current_savings_account_balance.available_balance,
+            current_savings_account_balance.frozen_balance
+        FROM
+            current_savings_account_balance ,
+            account_card_number
+        WHERE
+                current_savings_account_balance.external_account = account_card_number.external_account AND
+                account_card_number.bank_card_number = #{externalAccount}
+    </select>
+
+    <update id="updatebankbalance">
+        update current_savings_account_balance set bank_balance = bank_balance+#{changebalance},available_balance=available_balance+#{changebalance}
+        where external_account = #{external_account}
+    </update>
+
+    <insert id="inserttradingwater" parameterType="com.innovation.po.CustomerTradingWater">
+        insert into customer_trading_water
+        (transaction_time,business_type,transaction_amount,payment_name,payment_account,
+         receive_name,receive_account,current_balance,external_account)
+        values(#{customerTradingWater.transactionTime},#{customerTradingWater.businessType},#{customerTradingWater.transactionAmount},#{customerTradingWater.paymentName},#{customerTradingWater.paymentAccount},
+               #{customerTradingWater.receiveName},#{customerTradingWater.receiveAccount},
+        <if test="object==1">
+               (
+                   SELECT
+                       bank_balance
+                   FROM
+                       current_savings_account_balance
+                   where external_account = #{customerTradingWater.paymentAccount}
+               )
+               </if>
+        <if test="object==0">
+                (
+                    SELECT
+                    bank_balance
+                    FROM
+                    current_savings_account_balance
+                    where external_account = #{customerTradingWater.receiveAccount}
+                )
+                </if>
+        ,#{customerTradingWater.externalAccount})
+    </insert>
+
+    <select id="getAccountNameByCardNumber" resultType="String">
+        select external_account from account_card_number where bank_card_number = #{bankCardNumber}
+    </select>
+</mapper>

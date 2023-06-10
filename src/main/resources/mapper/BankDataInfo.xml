@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.innovation.Dao.BankDataInfoMapper">
+
+    <select id="queryBankCardCount" resultType="Integer">
+        select count(*) from account_card_number as bankCardCount
+    </select>
+
+    <select id="queryTransactionCount" resultType="Integer">
+        select count(distinct transaction_id) from customer_trading_water as transactionCount
+        where really_time between DATE_SUB(#{nowDate},INTERVAL 30 DAY) and DATE_ADD(#{nowDate},INTERVAL 1 DAY)
+    </select>
+
+    <select id="queryBankBalance" resultType="BigDecimal">
+        select balance from bank_cash_balance
+    </select>
+
+    <select id="queryBenchmarkInterestRate" resultType="BigDecimal">
+        select benchmark_interest_rate from interest_rate_definition
+    </select>
+
+    <select id="queryDepositSum" resultType="BigDecimal">
+        select sum(transaction_amount) as depositSum
+        from customer_trading_water
+        where business_type = '存款' and really_time between DATE_SUB(#{nowDate},INTERVAL 30 DAY) and DATE_ADD(#{nowDate},INTERVAL 1 DAY)
+    </select>
+
+    <select id="queryWithdrawalSum" resultType="BigDecimal">
+        select sum(abs(transaction_amount)) as withdrawalSum
+        from customer_trading_water
+        where business_type = '取款' and really_time between DATE_SUB(#{nowDate},INTERVAL 30 DAY) and DATE_ADD(#{nowDate},INTERVAL 1 DAY)
+    </select>
+
+    <select id="queryDepositAndWithdrawal" resultType="com.innovation.vo.DepositAndWithdrawal">
+        select
+               sum(case when business_type = '存款' then transaction_amount else 0 end) as deposit,
+               sum(case when business_type = '取款' then abs(transaction_amount) else 0 end) as withdrawal,
+               date_format(really_time,'%Y-%m-%d') reallyTime
+        from customer_trading_water
+        where really_time between DATE_SUB(#{nowDate},INTERVAL 30 DAY) and DATE_ADD(#{nowDate},INTERVAL 1 DAY)
+        group by reallyTime
+    </select>
+
+</mapper>

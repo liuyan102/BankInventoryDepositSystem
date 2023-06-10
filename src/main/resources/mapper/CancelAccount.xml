@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.innovation.Dao.CancelAccountMapper">
+
+    <select id="searcheexaccount" parameterType="String" resultType="String">
+
+        select external_account from customer_current_savings_account
+        where id_number=#{idnumber}
+
+    </select>
+
+    <update id="updatecancelaccount" parameterType="com.innovation.po.CurrentSavingsAccountInformation">
+        update current_savings_account_information set account_current_status =#{accountCurrentStatus},
+         expedient_date=#{expedientDate},sales_operator=#{salesOperator}
+        where external_account = #{externalAccount}
+    </update>
+
+    <select id="searchallbalance" resultType="BigDecimal">
+        select sum(bank_balance)
+        from attention_interest_rate
+        where external_account = #{external_account}
+    </select>
+
+    <select id="searchinterestrate" resultType="BigDecimal">
+        select benchmark_interest_rate from interest_rate_definition
+        where interest_rate_code = #{interest_rate_code}
+    </select>
+
+    <select id="searchtotalnum" resultType="int" parameterType="String">
+        select count(external_account) from attention_interest_rate where external_account=#{external_account}
+    </select>
+
+    <select id="getAllInterest" resultType="AttentionInterestRate">
+        select external_account,(bank_balance*(SELECT benchmark_interest_rate from interest_rate_definition where interest_rate_code ='1000')/(SELECT benchmark from interest_rate_definition where interest_rate_code ='1000')) as bank_balance
+        from attention_interest_rate
+    </select>
+
+    <insert id="insertHistoryInterest" parameterType="HistoricalInterestRate">
+        insert into historical_interest_rate(external_account,cumulativeInterest,now_date,daytime_interest_rate,precise_interest,customer_interest,difference_value)
+        values
+            (
+             #{externalAccount},
+             (
+                select sum(bank_balance) from attention_interest_rate where external_account = #{externalAccount}
+             ),
+             #{nowDate},
+                (
+                    SELECT benchmark_interest_rate from interest_rate_definition where interest_rate_code ='1000'
+                )
+             ,#{preciseInterest},#{customerInterest},#{differenceValue}
+            )
+    </insert>
+
+    <update id="deleteAttention">
+        TRUNCATE TABLE attention_interest_rate
+    </update>
+
+    <update id="updateAccountCardNUmber">
+        update account_card_number set status = '失效' where bank_card_number = #{bankCardNumber}
+    </update>
+</mapper>

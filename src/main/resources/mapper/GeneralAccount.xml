@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.innovation.Dao.GeneralAccountMapper">
+    <select id="totalAccountFlowInquiry" resultType="com.innovation.po.GeneralAccount">
+        SELECT
+            id,
+            general_ledger_date,
+            branch,
+            outlet_number,
+            general_ledger_type,
+            early_debit_balance,
+            early_credit_balance,
+            current_debit_amount,
+            current_credit_amount,
+            the_end_of_the_debit_balance,
+            the_end_of_the_credit_balance,
+            currency
+        FROM
+            general_account
+        where
+            <if test="SearchLable!='全部'">
+                general_ledger_type = #{SearchLable} and
+            </if>
+            general_ledger_date between #{start} and #{end}
+        order by general_ledger_date desc
+    </select>
+
+    <insert id="insertTheTotalAccount" parameterType="java.util.List">
+        insert into general_account(general_ledger_date,branch,outlet_number,general_ledger_type,
+                                    early_debit_balance,early_credit_balance,current_debit_amount,
+                                    current_credit_amount,the_end_of_the_debit_balance,
+                                    the_end_of_the_credit_balance,currency)
+        VALUES
+                <foreach collection="list" item="item" index="index" separator=",">
+                     (#{item.generalLedgerDate},#{item.branch},#{item.outletNumber},#{item.generalLedgerType},
+                     #{item.earlyDebitBalance},#{item.earlyCreditBalance},#{item.currentDebitAmount},
+                     #{item.currentCreditAmount},#{item.theEndOfTheDebitBalance},
+                     #{item.theEndOfTheCreditBalance},#{item.currency})
+                </foreach>
+    </insert>
+
+    <select id="getFirstTimeBalance" resultType="com.innovation.po.GeneralAccount">
+        SELECT
+            the_end_of_the_debit_balance,
+            the_end_of_the_credit_balance
+        FROM
+            general_account
+        where
+            general_ledger_type = #{name}
+        order by general_ledger_date desc
+            limit 0,1
+    </select>
+
+    <select id="getMiddleTimeBalance" resultType="BigDecimal">
+        SELECT
+            sum(amount)
+        FROM
+            general_account_water
+        where
+            cr_dr_ind = #{type}
+          and gl_code = #{code}
+          and now_date = #{date}
+    </select>
+
+    <select id="getEndTimeBalance" resultType="BigDecimal">
+        SELECT
+            sum(amount)
+        FROM
+            ${tableName}
+        where
+            cr_dr_ind = #{type}
+    </select>
+
+    <select id="getTableName" resultType="String">
+        SELECT gl_table FROM gl_subject where gl_code = #{code}
+    </select>
+
+    <select id="getSubjectList" resultType="Subject">
+        SELECT
+            gl_code,
+            gl_name
+        FROM
+            gl_subject
+    </select>
+
+    <insert id="BackUpGeneralBalance" parameterType="String">
+        insert into general_account_balance_backup(branch,gl_code,balance,currency,now_date)
+        select branch,gl_code,balance,currency,now_date from general_account_balance
+    </insert>
+
+    <update id="updateGeneralBalance">
+        update general_account_balance set balance = '0'
+    </update>
+
+    <update id="SettlementGeneralAmount">
+        update general_account_balance set balance = #{amount},now_date = #{nowDate} where gl_code = #{code}
+    </update>
+
+    <select id="getCurrentBalance" resultType="BigDecimal">
+        select balance from general_account_balance where gl_code = #{code}
+    </select>
+
+    <select id="getGeneralTradingWaterAmount" resultType="BigDecimal">
+        select sum(amount) from general_account_water where cr_dr_ind = #{crDrInd} and gl_code =#{glCode} and now_date = #{nowDate}
+    </select>
+
+    <select id="getGeneralBalance" resultType="BigDecimal">
+        select sum(balance) from general_account_balance where gl_code = #{code}
+    </select>
+
+    <select id="getAllGlCode" resultType="String">
+        select gl_code from gl_subject
+    </select>
+
+</mapper>

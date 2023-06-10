@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.innovation.Dao.OpenAccountMapper">
+    <resultMap type="com.innovation.po.CustomerPersonalInformation" id="CustomerPersonalInformationmap">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="type_of_certificate" property="typeOfCertificate"/>
+        <result column="id_number" property="idNumber"/>
+        <result column="certificate_validity_period" property="certificateValidityPeriod"/>
+        <result column="country_region" property="countryRegion"/>
+        <result column="address" property="address"/>
+        <result column="mail" property="mail"/>
+    </resultMap>
+    <!--查询客户信息-->
+    <select id="findCustomerByIDNumber" resultType="int">
+        select count(*)from customer_personal_information where id_number=#{idNumber}
+    </select>
+
+    <insert id="addCustomerPerson">
+        insert into customer_personal_information (name, type_of_certificate, id_number,address,mail) values (
+                                #{name}, #{typeOfCertificate}, #{idNumber}, #{address},#{mail}
+                                                                                            )
+    </insert>
+
+    <resultMap type="com.innovation.po.CustomerOnlineBankAccount" id="CustomerOnlineBankAccountmap">
+        <id column="id" property="id"/>
+        <result column="id_number" property="idNumber"/>
+        <result column="login_password" property="loginPassword"/>
+        <result column="phone_number" property="phoneNumber" />
+        <result column="login_status" property="loginStatus" />
+        <result column="last_login_time" property="lastLoginTime" />
+        <result column="active" property="active" />
+    </resultMap>
+
+<!--    添加网上银行账户-->
+    <insert id="addCustomerOnline">
+        insert into customer_online_bank_account (id_number, login_password, phone_number, login_status,active) values (
+                                                                            #{idNumber}, #{loginPassword}, #{phoneNumber}, #{loginStatus},#{active}
+                                                                        )
+    </insert>
+
+    <resultMap type="com.innovation.po.CustomerCurrentSavingsAccount" id="CustomerCurrentSavingsAccountmap">
+        <id column="id" property="id"/>
+        <result column="id_number" property="idNumber"/>
+
+        <result column="external_account" property="externalAccount" />
+    </resultMap>
+
+<!--将身份证号+银行卡号添加到customer_current_savings_account表中-->
+    <insert id="addAccount">
+        insert into customer_current_savings_account (id_number, external_account) values (
+                       #{idNumber}, #{externalAccount}
+                              )
+    </insert>
+
+    <resultMap type="com.innovation.po.CurrentSavingsAccountInformation" id="CurrentSavingsAccountInformationmap">
+        <id column="id" property="id"/>
+        <result column="external_account" property="externalAccount"/>
+        <result column="transaction_password" property="transactionPassword"/>
+        <result column="account_current_status" property="accountCurrentStatus"/>
+        <result column="currency" property="currency"/>
+        <result column="account_type" property="accountType"/>
+        <result column="account_opening_date" property="accountOpeningDate"/>
+        <result column="account_opening_operator" property="accountOpeningOperator"/>
+        <result column="expedient_date" property="expedientDate"/>
+        <result column="sales_operator" property="salesOperator"/>
+        <result column="status_update_date" property="statusUpdateDate"/>
+        <result column="status_update_operator" property="statusUpdateOperator"/>
+        <result column="validity_period" property="validityPeriod"/>
+        <result column="mobile_phone_bank_sign" property="mobilePhoneBankSign"/>
+        <result column="online_bank_sign" property="onlineBankSign"/>
+        <result column="forex_trading_sign" property="forexTradingSign"/>
+    </resultMap>
+
+    <insert id="addSavingsAccountInformation">
+        insert into current_savings_account_information (external_account, transaction_password,
+                                                         account_current_status, currency,account_type,
+                                                       mobile_phone_bank_sign,
+                                                         online_bank_sign,forex_trading_sign)
+        values (
+                   #{externalAccount}, #{transactionPassword},
+                   #{accountCurrentStatus}, #{currency},
+                   #{accountType},  #{mobilePhoneBankSign}, #{onlineBankSign},
+                   #{forexTradingSign}
+               )
+    </insert>
+
+    <resultMap type="com.innovation.po.CurrentSavingsAccountBalance" id="CurrentSavingsAccountBalance">
+        <id column="id" property="id"/>
+        <result column="external_account" property="externalAccount"/>
+        <result column="bank_balance" property="bankBalance"/>
+        <result column="available_balance" property="availableBalance" />
+        <result column="frozen_balance" property="frozenBalance" />
+    </resultMap>
+    <insert id="addSavingsAccountBalance">
+        insert into current_savings_account_balance (external_account, bank_balance, available_balance,frozen_balance,currency) values (
+                                                                                                                                  #{externalAccount}, #{bankBalance}, #{availableBalance}, #{frozenBalance} , 'CNY')
+    </insert>
+
+    <insert id="addAccountCardNumber">
+        insert into account_card_number(external_account,bank_card_number,status)values (#{externalAccount},#{bankCardNumber},'生效')
+    </insert>
+
+    <select id="getAccountStatus" resultType="String">
+        SELECT
+            current_savings_account_information.account_current_status
+        FROM
+            customer_current_savings_account ,
+            current_savings_account_information
+        WHERE
+                customer_current_savings_account.external_account = current_savings_account_information.external_account AND
+            customer_current_savings_account.id_number = #{idNumber}
+    </select>
+
+    <update id="updateAccount" parameterType="String">
+        update customer_current_savings_account set external_account = #{externalAccount} where id_number = #{idNumber}
+    </update>
+
+    <update id="updateOnlineAccount">
+        update customer_online_bank_account set login_password = #{loginPassword},phone_number = #{phoneNumber},login_status =#{loginStatus},active =#{active} where id_number = #{idNumber}
+    </update>
+
+    <update id="updatePersonInfo">
+        update customer_personal_information set name = #{name},type_of_certificate =#{typeOfCertificate},address =#{address},mail = #{mail} where id_number = #{idNumber}
+    </update>
+</mapper>

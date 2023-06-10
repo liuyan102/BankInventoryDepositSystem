@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.innovation.Dao.SystemSettingMapper">
+    <select id="getSystemMessage" resultType="com.innovation.po.SystemMessage">
+        SELECT
+            system_message.system_number,
+            system_message.system_name,
+            system_message.current_system_date,
+            system_message.last_day,
+            system_message.next_day,
+            system_message.complimentary_time,
+            system_message.comparative_state,
+            interest_rate_definition.settlement_day
+        FROM
+            system_message
+                left join interest_rate_definition on interest_rate_definition.interest_rate_code = '1000'
+    </select>
+    <update id="updateSystemInfo">
+        update system_message set current_system_date = #{currentSystemDate} , last_day = #{lastDay} , next_day = #{nextDay}
+        where system_number  = '1000'
+    </update>
+    <select id="getSystemTime" resultType="String">
+        select current_system_date from system_message
+    </select>
+
+    <update id="updateSystemMessage" parameterType="com.innovation.po.SystemMessage">
+        update system_message set complimentary_time = #{complimentaryTime},comparative_state = #{comparativeState}
+        where system_number = #{systemNumber}
+    </update>
+
+    <select id="getInformation" resultType="String">
+        select response_name from response where response_code = #{code}
+    </select>
+
+    <update id="updateTaskTime" parameterType="String">
+        update scheduled_task set task_cron = #{cron} where id = '1'
+    </update>
+
+    <update id="updateTaskStatus" parameterType="Integer">
+        update scheduled_task set init_start_flag = #{status} where task_key = 'scheduledTask01'
+    </update>
+</mapper>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.innovation.Dao.CustomerAndAccountBalanceInfoMapper">
+    <select id="queryCustomerAndAccountBalanceInfo" resultType="com.innovation.vo.CustomerAndAccountBalanceInfo">
+        select p.name,p.id_number,p.mail,p.address,o.phone_number,o.last_login_time,s.account_current_status,
+               a.bank_card_number,b.bank_balance,b.available_balance,b.frozen_balance
+        from customer_personal_information p,customer_online_bank_account o,current_savings_account_information s,
+             account_card_number a,current_savings_account_balance b
+        where p.id_number = #{idCardNumber} and o.id_number = #{idCardNumber} and s.external_account = #{externalAccount}
+          and a.external_account = #{externalAccount} and b.external_account = #{externalAccount}
+    </select>
+</mapper>

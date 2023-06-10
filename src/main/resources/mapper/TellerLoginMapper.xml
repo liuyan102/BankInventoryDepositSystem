@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.innovation.Dao.TellerLoginMapper">
+
+    <resultMap type="com.innovation.po.TellerLogin" id="TellerLoginmap">
+        <id column="id" property="id" />
+        <result column="teller_id" property="tellerId" />
+        <result column="teller_name" property="tellerName" />
+        <result column="teller_pwd" property="tellerPwd" />
+        <result column="teller_status" property="tellerStatus" />
+    </resultMap>
+    <select id="findTellerByTellerName" resultType="int">
+        select count(*) from teller where teller_name=#{tellerName}
+    </select>
+    <select id="findPwdByTellerName" resultType="java.lang.String">
+        select teller_pwd from teller where teller_name=#{tellerName}
+    </select>
+    <update id="updateStatus">
+        update teller set teller_status=#{tellerStatus} where teller_name=#{tellerName}
+    </update>
+
+</mapper>

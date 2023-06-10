@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.innovation.Dao.CustomerTradingWaterMapper">
+    <insert id="insertTradingWater" parameterType="com.innovation.po.CustomerTradingWater">
+        insert into customer_trading_water(transaction_time,business_type,transaction_amount,payment_name,
+                                           payment_account,receive_name,receive_account,current_balance,
+                                           external_account)
+        values (#{transactionTime},#{businessType},#{transactionAmount},#{paymentName},#{paymentAccount},
+                #{receiveName},#{receiveAccount},#{currentBalance},#{externalAccount})
+    </insert>
+
+    <select id="queryTradingWater" resultType="com.innovation.po.CustomerTradingWater">
+        select id,transaction_id,really_time,business_type,transaction_amount,payment_name,payment_account,receive_name,receive_account,
+        current_balance,external_account from customer_trading_water
+        where
+        external_account = #{externalAccount}
+        <if test="businessType != null and businessType != '' and businessType != '全部'">
+                and business_type = #{businessType}
+            </if>
+
+        <if test="startDate != null and endDate != null">
+                and really_time between #{startDate} and DATE_ADD(#{endDate},INTERVAL 1 DAY)
+            </if>
+        order by really_time desc
+    </select>
+
+    <select id="queryIncomeAndExpenditure" resultType="com.innovation.vo.IncomeAndExpenditureStatement">
+        select sum(transaction_amount) as profit,
+        sum(case when transaction_amount &gt; 0 then transaction_amount else 0 end) as income,
+        sum(case when transaction_amount &lt; 0 then abs(transaction_amount) else 0 end) as expenditure,
+        date_format(really_time,'%Y-%m-%d') reallyTime
+        from customer_trading_water
+        where external_account = #{externalAccount}
+        and really_time between DATE_SUB(#{nowDate},INTERVAL 30 DAY) and DATE_ADD(#{nowDate},INTERVAL 1 DAY)
+        group by reallyTime
+    </select>
+
+</mapper>
