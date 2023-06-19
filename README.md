@@ -34,9 +34,9 @@
 >>4. 整体项目：前后端分离模式
 >>5. 其他：使用maven进行jar包依赖，前端使用axios进行json格式数据的发送，后端通过controller层进行接收。
 >>6. 系统技术架构图
->>![img_2.png](img_2.png)
+>>![img_2.png](image/img_2.png)
 
 
 >系统功能架构图：
->![img.png](img.png)
->![img_1.png](img_1.png)
+>![img.png](image/img.png)
+>![img_1.png](image/img_1.png)
